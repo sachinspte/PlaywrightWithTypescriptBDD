@@ -1,0 +1,10 @@
+{
+    "default": {
+      "require": ["src/steps/**/*.ts", "src/support/**/*.ts"],
+      "publishQuiet": true,
+      "format": ["progress", "json:./reports/cucumber_report.json"],
+      "paths": ["src/features/**/*.feature"],
+      "typescript": true
+    }
+  }
+  

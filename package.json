@@ -1,0 +1,24 @@
+{
+  "name": "playwright-api-cucumber1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test1": "cucumber-js --require-module ts-node/register",
+    "test2": "npx cucumber-js --require-module ts-node/register --tags @api",
+    "report": "ts-node generate-report.ts",
+    "test:report": "npm run test2 && npm run report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.0.1",
+    "@playwright/test": "^1.48.2",
+    "cucumber-html-reporter": "^7.2.0",
+    "playwright": "^1.48.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
