@@ -12,3 +12,5 @@ npx playwright install
 
 4.Initialize TypeScript configuration:
 npx tsc --init
+
+5.npm install --save-dev cucumber-html-reporter
