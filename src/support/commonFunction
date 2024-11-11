@@ -1,0 +1,90 @@
+import { APIRequestContext, request } from '@playwright/test';
+
+type CRUDMethod = 'POST' | 'GET' | 'PUT' | 'DELETE';
+
+interface CRUDOptions {
+  endpoint: string;
+  method: CRUDMethod;
+  data?: any;
+  headers?: Record<string, string>;
+}
+
+async function performCRUDOperation(
+  requestContext: APIRequestContext,
+  options: CRUDOptions
+): Promise<any> {
+  const { endpoint, method, data, headers } = options;
+
+  // Configure options for the API request
+  const requestOptions: { headers?: Record<string, string>; data?: any } = {};
+  if (headers) requestOptions.headers = headers;
+  if (data) requestOptions.data = data;
+
+  // Perform the request based on the method
+  let response;
+  switch (method) {
+    case 'POST':
+      response = await requestContext.post(endpoint, requestOptions);
+      break;
+    case 'GET':
+      response = await requestContext.get(endpoint, requestOptions);
+      break;
+    case 'PUT':
+      response = await requestContext.put(endpoint, requestOptions);
+      break;
+    case 'DELETE':
+      response = await requestContext.delete(endpoint, requestOptions);
+      break;
+    default:
+      throw new Error(`Invalid CRUD method: ${method}`);
+  }
+
+  // Check for a successful response
+  if (!response.ok()) {
+    throw new Error(`Request failed with status ${response.status()}: ${await response.text()}`);
+  }
+
+  return response.json();
+}
+
+// Example usage
+(async () => {
+  // Initialize request context
+  const requestContext = await request.newContext();
+
+  try {
+    // Perform a POST request (Create)
+    const createResponse = await performCRUDOperation(requestContext, {
+      endpoint: 'https://example.com/api/resource',
+      method: 'POST',
+      data: { name: 'Test Resource' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    console.log('Create Response:', createResponse);
+
+    // Perform a GET request (Read)
+    const getResponse = await performCRUDOperation(requestContext, {
+      endpoint: 'https://example.com/api/resource/1',
+      method: 'GET',
+    });
+    console.log('Get Response:', getResponse);
+
+    // Perform a PUT request (Update)
+    const updateResponse = await performCRUDOperation(requestContext, {
+      endpoint: 'https://example.com/api/resource/1',
+      method: 'PUT',
+      data: { name: 'Updated Resource' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    console.log('Update Response:', updateResponse);
+
+    // Perform a DELETE request
+    const deleteResponse = await performCRUDOperation(requestContext, {
+      endpoint: 'https://example.com/api/resource/1',
+      method: 'DELETE',
+    });
+    console.log('Delete Response:', deleteResponse);
+  } finally {
+    await requestContext.dispose();
+  }
+})();
