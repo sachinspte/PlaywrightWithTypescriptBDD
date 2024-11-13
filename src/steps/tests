@@ -30,3 +30,9 @@ test('Store localStorage values with storageState and retrieve them', async ({ p
   const authToken = localStorage?.find((item: any) => item.name === 'authToken')?.value;
   console.log('authToken:', authToken);
 });
+
+
+function saveToSessionStorage<T>(key: string, value: T): void {
+  const valueToStore = typeof value === 'object' ? JSON.stringify(value) : String(value);
+  sessionStorage.setItem(key, valueToStore);
+}
