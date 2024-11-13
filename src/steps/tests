@@ -1,0 +1,32 @@
+import { test } from '@playwright/test';
+import * as fs from 'fs';
+
+test('Store localStorage values with storageState and retrieve them', async ({ page }) => {
+  // Navigate to the page and set up localStorage
+  await page.goto('https://example.com');
+  
+  // Optionally, add an item to localStorage for testing purposes
+  await page.evaluate(() => {
+    localStorage.setItem('authToken', 'your-token-value');
+  });
+
+  // Save the storage state to a JSON file
+  const storageFilePath = './storageState.json';
+  await page.context().storageState({ path: storageFilePath });
+  console.log(`Storage state saved to ${storageFilePath}`);
+
+  // Read and parse the storage state JSON file to retrieve localStorage
+  const storageState = JSON.parse(fs.readFileSync(storageFilePath, 'utf-8'));
+
+  // Extract localStorage for a specific origin
+  const localStorage = storageState.origins.find(
+    (origin: any) => origin.origin === 'https://example.com'
+  )?.localStorage;
+
+  // Log the localStorage content
+  console.log('localStorage for example.com:', localStorage);
+
+  // If needed, you can access specific keys in localStorage
+  const authToken = localStorage?.find((item: any) => item.name === 'authToken')?.value;
+  console.log('authToken:', authToken);
+});
