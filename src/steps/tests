@@ -30,6 +30,30 @@ test('Store localStorage values with storageState and retrieve them', async ({ p
   const authToken = localStorage?.find((item: any) => item.name === 'authToken')?.value;
   console.log('authToken:', authToken);
 });
+====
+globalContext.ts
+
+import { World as CucumberWorld } from '@cucumber/cucumber';
+
+export class CustomWorld implements CucumberWorld {
+  apiToken?: string; // Store the token globally
+  response?: any;    // Store the response for assertions
+}
+
+declare global {
+  interface World {
+    apiToken?: string;
+    response?: any;
+  }
+}
+
+==
+cucumber.ts
+import { setWorldConstructor } from '@cucumber/cucumber';
+import { CustomWorld } from './globalContext';
+
+setWorldConstructor(CustomWorld);
+===
 
 
 function saveToSessionStorage<T>(key: string, value: T): void {
