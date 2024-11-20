@@ -103,5 +103,11 @@ test('Read JSON file and log its contents', async () => {
     const jsonData = await readJsonFile(jsonPath);
     console.log('Parsed JSON:', jsonData);
 });
-
+===
+When('I retrieve the project name with value {string}', async (expectedValue: string) => {
+  // Extract the project name
+  retrievedProjectName = jsonResponse.Projects.find(
+    (project: any) => project.ProjectName.Value === expectedValue
+  )?.ProjectName.Value;
+});
 
