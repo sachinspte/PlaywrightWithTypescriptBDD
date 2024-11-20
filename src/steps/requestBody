@@ -38,3 +38,35 @@ Feature: Sending a POST request with data from a JSON file
 ============================
 
 
+import { Then } from '@cucumber/cucumber';
+import { expect } from '@playwright/test';
+
+Then(
+  'the response body should contain {string} with value {string}',
+  function (key: string, expectedValue: string) {
+    if (!this.response) {
+      throw new Error('No response found');
+    }
+
+    const responseBody = this.response.data;
+
+    // Check if the key exists in the response
+    expect(responseBody).toHaveProperty(key);
+
+    const actualValue = responseBody[key];
+    console.log(`Validating key: "${key}", Expected Value: "${expectedValue}", Actual Value: "${actualValue}"`);
+
+    // Convert the expected value to its actual type
+    let parsedExpectedValue: any = expectedValue;
+    if (expectedValue === 'true' || expectedValue === 'false') {
+      parsedExpectedValue = expectedValue === 'true'; // Convert to boolean
+    } else if (!isNaN(Number(expectedValue))) {
+      parsedExpectedValue = Number(expectedValue); // Convert to number
+    } else if (expectedValue === '') {
+      parsedExpectedValue = ''; // Empty string
+    }
+
+    // Validate the actual value matches the expected value
+    expect(actualValue).toBe(parsedExpectedValue);
+  }
+);
