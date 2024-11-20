@@ -1,0 +1,40 @@
+import { Given, When, Then } from '@cucumber/cucumber';
+import { expect } from '@playwright/test';
+import fs from 'fs/promises';
+
+Given('I send a POST request to {string} with data from {string}', async function (url: string, filePath: string) {
+  // Read the request body from the JSON file
+  const requestBody = await fs.readFile(filePath, 'utf-8');
+  const parsedBody = JSON.parse(requestBody);
+
+  // Perform the POST request using Playwright
+  const response = await this.page.request.post(url, {
+    data: parsedBody,
+  });
+
+  // Save the response for assertions
+  this.response = response;
+});
+
+Then('the response status should be {int}', async function (statusCode: number) {
+  // Check if the response status matches the expected status code
+  expect(this.response.status()).toBe(statusCode);
+});
+
+Then('the response body should contain {string} with value {string}', async function (key: string, value: string) {
+  // Parse and validate the response body
+  const responseBody = await this.response.json();
+  expect(responseBody[key]).toBe(value);
+});
+
+========================
+Feature: Sending a POST request with data from a JSON file
+
+  Scenario: Successfully sending a POST request
+    Given I send a POST request to "https://jsonplaceholder.typicode.com/posts" with data from "requestBody.json"
+    Then the response status should be 201
+    And the response body should contain "title" with value "foo"
+
+============================
+
+
