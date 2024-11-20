@@ -70,3 +70,38 @@ Then(
     expect(actualValue).toBe(parsedExpectedValue);
   }
 );
+====
+
+
+import * as fs from 'fs';
+import * as path from 'path';
+
+/**
+ * Reads a JSON file from the given path and returns the parsed JSON object.
+ * @param jsonPath - The relative or absolute path to the JSON file.
+ * @returns Parsed JSON object.
+ * @throws Error if the file cannot be read or parsed.
+ */
+export async function readJsonFile(jsonPath: string): Promise<any> {
+    try {
+        const absolutePath = path.resolve(jsonPath); // Resolve to an absolute path
+        const jsonData = fs.readFileSync(absolutePath, 'utf-8'); // Read file contents
+        return JSON.parse(jsonData); // Parse and return JSON
+    } catch (error) {
+        throw new Error(`Failed to read or parse JSON file: ${error.message}`);
+    }
+}
+
+
+==
+
+import { test } from '@playwright/test';
+import { readJsonFile } from './utils/readJsonFile'; // Assuming this file is in the 'utils' folder
+
+test('Read JSON file and log its contents', async () => {
+    const jsonPath = './request_body.json'; // Path to your JSON file
+    const jsonData = await readJsonFile(jsonPath);
+    console.log('Parsed JSON:', jsonData);
+});
+
+
