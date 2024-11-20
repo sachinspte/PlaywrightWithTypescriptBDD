@@ -113,3 +113,18 @@ When('I retrieve the project name with value {string}', async (expectedValue: st
   )?.ProjectName.Value;
 });
 
+===
+export interface SharedContext {
+  apiResponses: { [key: string]: any }; // Store responses with a unique key
+}
+
+export const sharedContext: SharedContext = {
+  apiResponses: {}, // Initialize an empty object to store responses
+};
+
+sharedContext.apiResponses['projectsResponse1'] = await response.json(); 
+
+const apiResponse = sharedContext.apiResponses['projectsResponse1'];
+
+
+===
