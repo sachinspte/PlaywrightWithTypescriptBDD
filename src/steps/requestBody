@@ -104,6 +104,8 @@ test('Read JSON file and log its contents', async () => {
     console.log('Parsed JSON:', jsonData);
 });
 ===
+When I retrieve the project name with value "testing"
+
 When('I retrieve the project name with value {string}', async (expectedValue: string) => {
   // Extract the project name
   retrievedProjectName = jsonResponse.Projects.find(
