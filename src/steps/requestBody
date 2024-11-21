@@ -233,3 +233,36 @@ function findKeyValueInJson(json: any, key: string, value: string): boolean {
     return Object.values(json).some((val) => findKeyValueInJson(val, key, value));
   }
 }
++++++
+function findKeyValueInJson(
+  json: any,
+  key: string,
+  value: string,
+  visited: Set<any> = new Set()
+): boolean {
+  // Avoid processing the same object repeatedly (for circular references)
+  if (typeof json === 'object' && json !== null) {
+    if (visited.has(json)) {
+      return false;
+    }
+    visited.add(json);
+  }
+
+  if (typeof json !== 'object' || json === null) {
+    return false;
+  }
+
+  if (json[key] === value) {
+    return true;
+  }
+
+  if (Array.isArray(json)) {
+    return json.some((item) => findKeyValueInJson(item, key, value, visited));
+  } else {
+    return Object.values(json).some((val) =>
+      findKeyValueInJson(val, key, value, visited)
+    );
+  }
+}
+
+
