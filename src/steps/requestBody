@@ -128,3 +128,108 @@ const apiResponse = sharedContext.apiResponses['projectsResponse1'];
 
 
 ===
+
+import { Given, When, Then } from '@cucumber/cucumber';
+import { expect } from '@playwright/test';
+
+let jsonResponse: any;
+let keyExists: boolean;
+
+Given('I have the JSON response', async function () {
+  jsonResponse = {
+    Projects: [
+      { Projectid: "123", ProjectName: { Value: "testing" } },
+      { Projectid: "456", ProjectName: { Value: "testing1" } }
+    ]
+  };
+});
+
+When('I check for key {string} value {string} in the JSON response', async function (key: string, value: string) {
+  keyExists = findKeyValueInJson(jsonResponse, key, value);
+});
+
+Then('I should see that {string} "{string}" exists', async function (key: string, value: string) {
+  expect(keyExists).toBeTruthy();
+});
+
+/**
+ * Recursively searches for a key-value pair in a JSON object.
+ * @param json - The JSON object to search in.
+ * @param key - The key to search for.
+ * @param value - The value to validate.
+ * @returns {boolean} - True if the key-value pair exists, otherwise false.
+ */
+function findKeyValueInJson(json: any, key: string, value: string): boolean {
+  if (typeof json !== 'object' || json === null) {
+    return false;
+  }
+
+  // Check if the key exists at the current level
+  if (json[key] === value) {
+    return true;
+  }
+
+  // Traverse nested objects or arrays
+  if (Array.isArray(json)) {
+    return json.some((item) => findKeyValueInJson(item, key, value));
+  } else {
+    return Object.values(json).some((val) => findKeyValueInJson(val, key, value));
+  }
+}
+
+==
+Feature: Verify Projectid in the JSON response
+
+  Scenario: Check if Projectid contains 456
+    Given I have the JSON response
+    When I check for key "Projectid"  value "456" in the JSON response
+    Then I should see that Projectid "456" exists
+
+
+import { Given, When, Then } from '@cucumber/cucumber';
+import { expect } from '@playwright/test';
+
+let jsonResponse: any;
+let keyExists: boolean;
+
+Given('I have the JSON response', async function () {
+  jsonResponse = {
+    Projects: [
+      { Projectid: "123", ProjectName: { Value: "testing" } },
+      { Projectid: "456", ProjectName: { Value: "testing1" } }
+    ]
+  };
+});
+
+When('I check for key {string} value {string} in the JSON response', async function (key: string, value: string) {
+  keyExists = findKeyValueInJson(jsonResponse, key, value);
+});
+
+Then('I should see that {string} "{string}" exists', async function (key: string, value: string) {
+  expect(keyExists).toBeTruthy();
+});
+
+/**
+ * Recursively searches for a key-value pair in a JSON object.
+ * @param json - The JSON object to search in.
+ * @param key - The key to search for.
+ * @param value - The value to validate.
+ * @returns {boolean} - True if the key-value pair exists, otherwise false.
+ */
+function findKeyValueInJson(json: any, key: string, value: string): boolean {
+  if (typeof json !== 'object' || json === null) {
+    return false;
+  }
+
+  // Check if the key exists at the current level
+  if (json[key] === value) {
+    return true;
+  }
+
+  // Traverse nested objects or arrays
+  if (Array.isArray(json)) {
+    return json.some((item) => findKeyValueInJson(item, key, value));
+  } else {
+    return Object.values(json).some((val) => findKeyValueInJson(val, key, value));
+  }
+}
