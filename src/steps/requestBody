@@ -307,5 +307,54 @@ function findKeyValueInJson(
     return Object.values(json).some((val) => findKeyValueInJson(val, key, value, visited, looseComparison));
   }
 }
+====
+
+function isBlank(value: any): boolean {
+  return value === null || value === undefined || value === '';
+}
+
+function findKeyValueInJson(
+  json: any,
+  key: string,
+  value: any,
+  visited: Set<any> = new Set(),
+  looseComparison: boolean = false
+): boolean {
+  // Avoid circular references
+  if (typeof json === 'object' && json !== null) {
+    if (visited.has(json)) {
+      return false;
+    }
+    visited.add(json);
+  }
+
+  // Base case: If it's not an object or array, stop processing
+  if (typeof json !== 'object' || json === null) {
+    return false;
+  }
+
+  // Compare values
+  if (json[key] !== undefined) {
+    if (looseComparison) {
+      // Perform loose comparison using type coercion
+      if (String(json[key]) === String(value) || (isBlank(value) && isBlank(json[key]))) {
+        return true;
+      }
+    } else {
+      // Strict comparison
+      if (json[key] === value || (isBlank(value) && isBlank(json[key]))) {
+        return true;
+      }
+    }
+  }
+
+  // Traverse arrays or objects
+  if (Array.isArray(json)) {
+    return json.some((item) => findKeyValueInJson(item, key, value, visited, looseComparison));
+  } else {
+    return Object.values(json).some((val) => findKeyValueInJson(val, key, value, visited, looseComparison));
+  }
+}
+
 
 
