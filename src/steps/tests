@@ -60,3 +60,51 @@ function saveToSessionStorage<T>(key: string, value: T): void {
   const valueToStore = typeof value === 'object' ? JSON.stringify(value) : String(value);
   sessionStorage.setItem(key, valueToStore);
 }
+
+
+=====
+
+24/11
+import fs from 'fs';
+
+async function getAccessTokenFromJson(filePath: string): Promise<string | null> {
+  // Read the JSON file
+  const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+
+  // Loop through the origins to find the matching localStorage entry
+  for (const origin of data.origins) {
+    for (const localStorageEntry of origin.localStorage) {
+      if (localStorageEntry.name === 'firstName') {
+        try {
+          // Parse the value of the matching entry
+          const valueObject = JSON.parse(localStorageEntry.value);
+          // Extract the access_token if it exists
+          return valueObject.authResult?.access_token || null;
+        } catch (error) {
+          console.error('Error parsing localStorage value:', error);
+          return null;
+        }
+      }
+    }
+  }
+
+  // If not found, return null
+  return null;
+}
+
+// Usage example
+(async () => {
+  const filePath = './your-json-file.json'; // Replace with your JSON file path
+  const accessToken = await getAccessTokenFromJson(filePath);
+  if (accessToken) {
+    console.log('Access Token:', accessToken);
+  } else {
+    console.log('Access Token not found.');
+  }
+})();
+
+
+
+
+
+
