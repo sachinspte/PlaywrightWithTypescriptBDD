@@ -104,7 +104,47 @@ async function getAccessTokenFromJson(filePath: string): Promise<string | null> 
 })();
 
 
+====+++=====
+import fs from 'fs';
 
+async function getAccessTokenFromJson(filePath: string): Promise<string | null> {
+  const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+
+  for (const origin of data.origins) {
+    for (const localStorageEntry of origin.localStorage) {
+      if (localStorageEntry.name === 'firstName') {
+        try {
+          const valueObject = JSON.parse(localStorageEntry.value);
+          const accessToken = valueObject.authResult?.access_token || null;
+
+          // Validate the format of the access token
+          if (accessToken && accessToken.split('.').length === 3) {
+            return accessToken; // Return if valid
+          } else {
+            console.warn('Access Token is not a valid JWT:', accessToken);
+            return accessToken; // Return even if not a valid JWT
+          }
+        } catch (error) {
+          console.error('Error parsing localStorage value:', error);
+          return null;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+// Usage
+(async () => {
+  const filePath = './your-json-file.json'; // Replace with your JSON file path
+  const accessToken = await getAccessTokenFromJson(filePath);
+  if (accessToken) {
+    console.log('Access Token:', accessToken);
+  } else {
+    console.log('Access Token not found.');
+  }
+})();
 
 
 
