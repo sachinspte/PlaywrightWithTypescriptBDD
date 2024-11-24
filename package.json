@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "test1": "cucumber-js --require-module ts-node/register",
     "test2": "npx cucumber-js --require-module ts-node/register --tags @api",
+    "test21": "cross-env ENV=staging FORCE_COLOR=0 npx cucumber-js --require-module ts-node/register --tags @apicrud1",
+    "test22": "cross-env ENV=dev FORCE_COLOR=0 npx cucumber-js --require-module ts-node/register --tags @apicrud1",
     "report": "ts-node generate-report.ts",
     "test:report": "npm run test2 && npm run report"
   },
