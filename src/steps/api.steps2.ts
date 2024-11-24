@@ -1,12 +1,17 @@
 import { Given } from '@cucumber/cucumber';
 import axios from 'axios';
 import { performCRUDOperation } from '../support/api_utility'; // Path to the utility function
+import { getEnvConfig } from '../../env.config';
+
+const environment = process.env.ENV || 'dev'; // Get ENV from CLI or default to 'dev'
+const config = getEnvConfig(environment);
 
 Given('I send a POST request to {string} with:', async function (url: string, dataTable: any) {
   // const payload = dataTable.rowsHash(); // Convert table to an object
   // const response = await axios.post(url, payload);
   // this.response = response; // Store response in context
   // Create (POST)
+   console.log(`Base URL: ${config.baseURL}`);
   const createResponse = await performCRUDOperation({
     method: 'POST',
     url: 'https://jsonplaceholder.typicode.com/posts',
