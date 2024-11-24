@@ -1,0 +1,161 @@
+globals.ts
+
+export let globalAccessToken: string | null = null;
+
+// Function to set the token
+export function setGlobalAccessToken(token: string) {
+  globalAccessToken = token;
+}
+
+// Function to get the token
+export function getGlobalAccessToken(): string | null {
+  return globalAccessToken;
+}
+
+
+
+in script
+import { setGlobalAccessToken, getGlobalAccessToken } from './globals';
+import fs from 'fs';
+
+async function storeTokenGlobally(filePath: string) {
+  const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  let token: string | null = null;
+
+  for (const origin of data.origins) {
+    for (const localStorageEntry of origin.localStorage) {
+      if (localStorageEntry.name === 'firstName') {
+        try {
+          const parsedValue = JSON.parse(localStorageEntry.value);
+          token = parsedValue.authResult?.access_token || null;
+          if (token) {
+            setGlobalAccessToken(token);
+            console.log('Token stored globally:', token);
+            return;
+          }
+        } catch (error) {
+          console.error('Error parsing token:', error);
+        }
+      }
+    }
+  }
+
+  console.log('No token found to store globally.');
+}
+
+(async () => {
+  const filePath = './your-json-file.json'; // Replace with your JSON file path
+  await storeTokenGlobally(filePath);
+  console.log('Access Token from Globals:', getGlobalAccessToken());
+})();
+
+
+
+===
+Approach 2: Use Playwright's Test Fixtures
+If you're using Playwright for testing, you can leverage its fixtures to store and share the token globally across tests.
+
+playwright.config.ts
+Add a custom fixture to store the token:
+
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  globalSetup: './global-setup.ts',
+  use: {
+    // Other Playwright configurations
+  },
+});
+
+
+global-setup.ts::
+import { FullConfig } from '@playwright/test';
+import fs from 'fs';
+
+async function globalSetup(config: FullConfig) {
+  const data = JSON.parse(fs.readFileSync('./your-json-file.json', 'utf-8')); // Update path
+
+  for (const origin of data.origins) {
+    for (const localStorageEntry of origin.localStorage) {
+      if (localStorageEntry.name === 'firstName') {
+        try {
+          const parsedValue = JSON.parse(localStorageEntry.value);
+          const token = parsedValue.authResult?.access_token || null;
+
+          if (token) {
+            process.env.ACCESS_TOKEN = token; // Store token in an environment variable
+            console.log('Token stored globally via environment variable.');
+            return;
+          }
+        } catch (error) {
+          console.error('Error parsing token:', error);
+        }
+      }
+    }
+  }
+
+  console.log('No token found to store globally.');
+}
+
+export default globalSetup;
+
+
+
+Access Token in Tests:
+In your tests, access the token using process.env.ACCESS_TOKEN:
+
+import { test, expect } from '@playwright/test';
+
+test('Verify access token is available', async ({}) => {
+  const token = process.env.ACCESS_TOKEN;
+  expect(token).not.toBeNull();
+  console.log('Access Token:', token);
+});
+
+
+===
+Approach 3: Use a Singleton Class
+A singleton class ensures the token is stored in a globally shared instance.
+
+TokenManager.ts
+
+export class TokenManager {
+  private static instance: TokenManager;
+  private token: string | null = null;
+
+  private constructor() {}
+
+  static getInstance(): TokenManager {
+    if (!TokenManager.instance) {
+      TokenManager.instance = new TokenManager();
+    }
+    return TokenManager.instance;
+  }
+
+  setToken(token: string) {
+    this.token = token;
+  }
+
+  getToken(): string | null {
+    return this.token;
+  }
+}
+
+
+
+script
+import { TokenManager } from './TokenManager';
+
+async function storeToken() {
+  const tokenManager = TokenManager.getInstance();
+  const token = 'your-access-token'; // Replace with token extraction logic
+  tokenManager.setToken(token);
+  console.log('Token stored globally:', tokenManager.getToken());
+}
+
+storeToken();
+
+
+
+
+
