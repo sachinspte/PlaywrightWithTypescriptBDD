@@ -60,3 +60,39 @@ export async function performCRUDOperation(options: RequestOptions): Promise<Axi
     }
   }
 }
+===
+npm install axios-retry
+
+  
+  import axios from 'axios';
+import axiosRetry from 'axios-retry';
+
+axiosRetry(axios, {
+  retries: 3, // Retry up to 3 times
+  retryDelay: axiosRetry.exponentialDelay, // Exponential backoff
+  shouldResetTimeout: true, // Reset timeout for each retry
+});
+
+export async function performCRUDOperation(options: RequestOptions): Promise<AxiosResponse> {
+  try {
+    const { method, url, headers, body } = options;
+
+    const response = await axios({
+      method,
+      url,
+      headers,
+      data: body,
+      timeout: 10000, // 10-second timeout
+      validateStatus: (status) => true, // Treat all responses as valid
+    });
+
+    console.log('Response Data:', JSON.stringify(response.data, null, 2));
+    return response;
+  } catch (error: any) {
+    console.error('Request failed:', error.message);
+    throw error;
+  }
+}
+
+
+
