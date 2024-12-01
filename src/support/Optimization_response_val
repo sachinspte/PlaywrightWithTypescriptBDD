@@ -1,0 +1,131 @@
+xyz.steps.ts
+
+import { executeApiCall, validateApiResponse } from './xyz';
+
+Given(
+  'I have a valid API endpoint with {string} method and {string} functionality',
+  async function (method: string, functionality: string) {
+    try {
+      const response = await executeApiCall(method, functionality);
+      this.response = response;
+      validateApiResponse(functionality, response, method);
+    } catch (error) {
+      console.error(`Error processing ${functionality} with ${method}:`, error.message);
+      throw error;
+    }
+  }
+);
+
+
+==
+xyz.ts
+
+import fs from 'fs/promises';
+import path from 'path';
+import { getToken, PerformOperation } from 'path-to-your-utility-functions';
+
+/**
+ * Read payload from an external file.
+ */
+async function loadPayload(fileName: string): Promise<any> {
+  const filePath = path.join(__dirname, 'payloads', fileName);
+  try {
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    return JSON.parse(fileContent);
+  } catch (error) {
+    throw new Error(`Failed to load payload from ${filePath}: ${error.message}`);
+  }
+}
+
+/**
+ * Perform API call based on method, functionality, and optional data.
+ */
+export async function executeApiCall(
+  method: string,
+  functionality: string
+): Promise<any> {
+  const urlMapping: Record<string, string> = {
+    getProgress: 'xyz.com/getProgress',
+    trackProgress: 'xyz.com/trackProgress',
+    updateProgress: 'xyz.com/updateProgress',
+    deleteProgress: 'xyz.com/deleteProgress',
+  };
+
+  const payloadMapping: Record<string, string> = {
+    trackProgress: 'trackProgress.json',
+    updateProgress: 'updateProgress.json',
+    // Add mappings for other payloads if needed
+  };
+
+  const token = await getToken();
+  const url = urlMapping[functionality];
+
+  if (!url) {
+    throw new Error(`Unknown functionality: ${functionality}`);
+  }
+
+  const options: any = {
+    method,
+    url,
+    headers: { Authorization: `Bearer ${token}` },
+  };
+
+  // Load payload for POST/PUT if applicable
+  if (['POST', 'PUT'].includes(method.toUpperCase())) {
+    const payloadFile = payloadMapping[functionality];
+    if (!payloadFile) {
+      throw new Error(`Payload file not defined for functionality: ${functionality}`);
+    }
+    options.data = await loadPayload(payloadFile);
+  }
+
+  return PerformOperation(options);
+}
+
+/**
+ * Validate the API response for a specific functionality and method.
+ */
+export function validateApiResponse(
+  functionality: string,
+  response: any,
+  method: string
+): void {
+  switch (functionality) {
+    case 'getProgress':
+      if (method === 'GET') {
+        expect(response).toHaveProperty('ryyyuf');
+      }
+      break;
+
+    case 'trackProgress':
+      if (method === 'POST') {
+        expect(response).toHaveProperty('dfggfg');
+        expect(response).toBe(expectedValue);
+      }
+      break;
+
+    case 'updateProgress':
+      if (method === 'PUT') {
+        expect(response.status).toBe(200);
+        expect(response.message).toBe('Progress updated successfully');
+      }
+      break;
+
+    case 'deleteProgress':
+      if (method === 'DELETE') {
+        expect(response.status).toBe(204);
+      }
+      break;
+
+    default:
+      throw new Error(`Unknown functionality: ${functionality}`);
+  }
+}
+==
+
+payloads/
+  getProgress.json
+  trackProgress.json
+  updateProgress.json
+  deleteProgress.json
+
