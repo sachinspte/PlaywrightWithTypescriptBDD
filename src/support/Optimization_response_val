@@ -129,3 +129,27 @@ payloads/
   updateProgress.json
   deleteProgress.json
 
+==
+
+// utility-functions.ts
+import axios from 'axios';
+
+export async function PerformOperation(options: {
+  method: string;
+  url: string;
+  headers?: Record<string, string>;
+  data?: any;
+}): Promise<any> {
+  try {
+    const response = await axios({
+      method: options.method,
+      url: options.url,
+      headers: options.headers,
+      data: options.data,
+    });
+    return response.data; // Return response body
+  } catch (error) {
+    console.error('API call failed:', error.message);
+    throw error;
+  }
+}
