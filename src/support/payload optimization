@@ -1,0 +1,74 @@
+async function generatePayload(functionality: string, apiResponse: any): Promise<any> {
+  let dynamicPayload: any;
+
+  // Define the base structure for each functionality
+  switch (functionality) {
+    case 'createProject':
+      dynamicPayload = {
+        xyz: "123",
+        xyz1: "87t77",
+        xyz2: "789",
+      };
+      break;
+
+    case 'createProjectNew':
+      dynamicPayload = {
+        abc: "123ewere",
+        abc1: "456ewrwe",
+        abc2: "", // Field to be filled dynamically
+      };
+      // Dynamically set abc2 from the API response
+      dynamicPayload.abc2 = apiResponse?.fieldNameForAbc2 || "default_value"; 
+      break;
+
+    case 'createProjectOld':
+      dynamicPayload = {
+        mno: "", // Field to be filled dynamically
+        mno1: "f7433ewrwe",
+        mno2: "980weer",
+      };
+      // Dynamically set mno from the API response
+      dynamicPayload.mno = apiResponse?.fieldNameForMno || "default_value";
+      break;
+
+    default:
+      throw new Error(`Unsupported functionality: ${functionality}`);
+  }
+
+  return dynamicPayload;
+}
+
+// Example usage of the function
+async function handleRequest(functionality: string) {
+  try {
+    // Simulate an API call to fetch data
+    const apiResponse = await fetchApiData(functionality);
+
+    // Generate the payload with dynamic fields
+    const payload = await generatePayload(functionality, apiResponse);
+
+    // Hit the API with the generated payload
+    const response = await hitApiWithPayload(payload);
+
+    console.log("API Response:", response);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+// Mock API call to simulate fetching data
+async function fetchApiData(functionality: string): Promise<any> {
+  // Simulate a response from API
+  return new Promise((resolve) =>
+    setTimeout(() => resolve({ fieldNameForAbc2: "dynamic_value_abc2", fieldNameForMno: "dynamic_value_mno" }), 1000)
+  );
+}
+
+// Mock API call to simulate hitting an endpoint
+async function hitApiWithPayload(payload: any): Promise<any> {
+  console.log("Payload sent:", payload);
+  return { status: "success" };
+}
+
+// Call the function with desired functionality
+handleRequest('createProjectNew');
